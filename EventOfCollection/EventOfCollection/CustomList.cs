@@ -53,6 +53,20 @@ namespace EventOfCollection
         public EventHandler<Inserter<T>> OnInsert;
 
         /// <summary>
+        /// Делегат EventHandler<RemoverAtCancel> представляет метод OnCancelRemoverAt, принимающий в качестве
+        /// параметров текущий объект
+        /// и объект содержащий информацию о возникшем исключении
+        /// </summary>
+        public EventHandler<RemoverAtCancel> OnCancelRemoverAt;
+        /// <summary>
+        /// Делегат EventHandler<RemoverExceptin> представляет метод nRemoverException, принимающий в качестве параметров текущий 
+        /// объект и объект содержащий информацию о текущем исключении
+        /// </summary>
+        public EventHandler<RemoverException<T>> OnRemoverException;
+
+        public EventHandler<InserterCancel> OnInsertCancel;
+
+        /// <summary>
         /// Делегат EventHandler<Copyier<T>> представляет метод OnCopy, принимающий в качестве параметров
         /// текущий объект и объект содержащий информацию о массиве в который копируется коллекция и с какого 
         /// индекса вставляется в массив
@@ -206,14 +220,16 @@ namespace EventOfCollection
                 else
                 {
                     //Если совпадение не найдено, выбрасывается исключение
-                    throw new ArgumentException("Передаваемый индекс не найден");
+                    throw new ArgumentException("Передаваемый индекс не найден.");
                 }             
             }
             catch(ArgumentException ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
-                Console.ResetColor();
+                //Экземпляр класса RemoverAtCancel содержит сообщение возникшего исключения и индекс удаляемого элемента
+                var eventArgs = new RemoverAtCancel(index, ex.Message);
+
+                //Вызов функции обработчика
+                OnCancelRemoverAt(this, eventArgs);
             }
         }
 
@@ -263,9 +279,11 @@ namespace EventOfCollection
             }
             catch(ArgumentException ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
-                Console.ResetColor();
+                //Создается экземпляр класса eventArgs содержащий удаляемый элемент и сообщение исключения
+                var eventArgs = new RemoverException<T>(el, ex.Message);
+
+                //Вызов функции обработчика
+                OnRemoverException(this, eventArgs);
 
                 return false;
             }
@@ -345,10 +363,14 @@ namespace EventOfCollection
                 //Если свойству объекта Cancel присвоено значение 'true'
                 if (eventArgs.Cancel)
                 {
-                    //Выводится сообщение об отмене вставки
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Элемент {el} не был вставлен на позицию {index}");
-                    Console.ResetColor();
+                    string message = $"Элемент {el} не был вставлен на позицию {index}";
+
+                    //Создается экземпляр класса InsertCancel, ссодержащий сообщение с индексом и вставляемым в коллекцию элементом
+                    var evArgs = new InserterCancel(message);
+
+                    //Вызов функции обработчика события отмены вставки элемента на определенный индекс
+                    OnInsertCancel(this, evArgs);
+
                     return;
                 }
             }

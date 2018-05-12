@@ -7,7 +7,7 @@ namespace EventOfCollection
     /// <summary>
     /// Класс предназначенный для формирования объектов события - копирования элементов коллекции в массив
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// /// <typeparam name="T"></typeparam>
     class Copyier<T>
     {
         /// <summary>

@@ -8,6 +8,7 @@ namespace EventOfCollection
     /// Класс предназначенный для формирования объектов события - удаления всех элементов коллекции
     /// </summary>
     /// <typeparam name="T"></typeparam>
+
     class Cleaner<T>
     {
         /// <summary>

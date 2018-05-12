@@ -33,12 +33,27 @@ namespace EventOfCollection
 
             ///Функция Copy является обработчиком ссобытия копирования элементов коллекции в массив
             str.OnCopy += Copy;
-            
+
+            //Функция CancelnRemoverAt является обработчиком события отмены удаления элемента в коллекции
+            str.OnCancelRemoverAt += CancelRemoverAt;
+
+            //Функция RemoveException является обработчиком возникновения исключения при удалении элемента
+            str.OnRemoverException += RemoveException;
+
+            //Функция InsertCancel является обработчиком события отмены вставкиэлемента в коллекцию
+            str.OnInsertCancel += InsertCancel;
+
             ///Добавление элементов в массив
-            str.Add("Петя");
+            str.Add("привет");
             str.Add("Василий Петрович");
             str.Add("Андрей");
             str.Add("Игорь");
+
+            ///Удаление первого элемента из массива
+            str.RemoveAt(0);
+
+            ///Намеренное удаление отсутствующего элемента
+            str.Remove("Ub");
 
             ///Массив в который будут копироваться элементы из коллекции
             string[] arr = new string[str.Count];
@@ -53,17 +68,11 @@ namespace EventOfCollection
                 Console.WriteLine(el);
             }
 
-            ///Удаление первого элемента из массива
-            str.RemoveAt(0);
-
             ///Вывод количества элементов в коллекции
             Console.WriteLine($"Количество элементов в коллекции - {str.Count}");
 
-            ///Очиска коллекции
-            str.Clear();
 
-            Console.WriteLine($"Количество элементов в коллекции - {str.Count}");
-
+            
             Console.ReadLine();
         }
 
@@ -127,9 +136,9 @@ namespace EventOfCollection
 
             try
             {
-                ///Если нажата кнопка 'n'
                 switch (Console.ReadKey(true).KeyChar)
                 {
+                    ///Если нажата кнопка 'n'
                     case 'n':
                         ///Свойство Cancel принимает значение 'true' и удаление отменяется
                         rem.Cancel = true;
@@ -137,14 +146,14 @@ namespace EventOfCollection
                         Console.WriteLine("Удаление отменено");
                         Console.ResetColor();
                         break;
+                    ///Если нажата клавиша 'Y', то происходит удаление
                     case 'y':
-                        ///Если нажата клавиша 'Y', то происходит удаление
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Элемент под индексом '{rem.Index}' -  удален");
                         Console.ResetColor();
                         break;
+                    ///Во всех остальных случаях выбрасывается исключение
                     default:
-                        ///Во всех остальных случаях выбрасывается исключение
                         rem.Cancel = true;
                         throw new ArgumentException("Нажата неверная клавиша.");
                 }
@@ -178,9 +187,9 @@ namespace EventOfCollection
         private static void Inserting(object sender, Inserter<string> el)
         {
             ///При попытке вставить пустую строку
-            if(el.Element == "")
+            if (el.Element == "")
             {
-                ///Свойство Cancel принимает значение 'true' и вставка отменяется
+                ///При попытке вставить пустую строку
                 el.Cancel = true;
             }
             else
@@ -198,6 +207,42 @@ namespace EventOfCollection
         private static void Copy(object sender, Copyier<string> copy)
         {
             Console.WriteLine($"Элементы коллекции были скопированы в массив {copy.Arr}, начиная с индекса {copy.Index}");
+        }
+
+        /// <summary>
+        /// Метод CancelRemoverAt вызывается при отмене удаления элемента на определенной позиции
+        /// </summary>
+        /// <param name="sender">Объект, в контексте которого вызывается функция</param>
+        /// <param name="rem">Объект хранящий индекс элемента и сообщение об удалении элемента</param>
+        private static void CancelRemoverAt(object sender, RemoverAtCancel rem)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"{rem.Message} Индекс - {rem.Index}");
+            Console.ResetColor();
+        }
+
+        /// <summary>
+        /// Метод RemoveException вызывается при возникновении исключения при удалении определенного элемента из коллекции
+        /// </summary>
+        /// <param name="sender">Объект, в контексте которого вызывается функция</param>
+        /// <param name="remover">Объект хранящий сообщени о возникновении исключения</param>
+        private static void RemoveException(object sender, RemoverException<string> remover)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"{remover.Message}");
+            Console.ResetColor();
+        }
+
+        /// <summary>
+        /// Метод InsertCancel вызывается при возникновении события - отмены вставки элемента на орпеделенную позицию
+        /// </summary>
+        /// <param name="sender">Объект, в контексте которого вызывается функция</param>
+        /// <param name="inserter">Объект хранящий сообщение о вставляемом элементе и его индексе</param>
+        private static void InsertCancel(object sender, InserterCancel inserter)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(inserter.Message);
+            Console.ResetColor();
         }
     }
 }
